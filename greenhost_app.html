@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#48bb78">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GreenHost">
+    <link rel="manifest" id="manifest-placeholder">
+    <title>GreenHost - Servidor Minecraft</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            color: #2d3748;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: #f7fafc;
+            color: #4a5568;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: #48bb78;
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #edf2f7;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .server-card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .server-card:hover {
+            border-color: #48bb78;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .server-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-online {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-offline {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-starting {
+            background: #fef5e7;
+            color: #7b341e;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #48bb78;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .storage-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .storage-connected {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #48bb78;
+            transition: width 0.3s;
+        }
+
+        .server-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification.success {
+            background: #48bb78;
+        }
+
+        .notification.error {
+            background: #f56565;
+        }
+
+        .file-upload {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .server-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #48bb78;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .tab-bar {
+                flex-direction: column;
+            }
+            
+            .server-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌱 GreenHost</h1>
+        <p>Crea y administra servidores de Minecraft potentes y confiables</p>
+        <button class="btn btn-secondary" onclick="downloadApp()" style="margin-top: 0.5rem; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);">
+            📥 Descargar App
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="tab-bar">
+            <button class="tab active" onclick="showTab('servers')">Mis Servidores</button>
+            <button class="tab" onclick="showTab('create')">Crear Servidor</button>
+            <button class="tab" onclick="showTab('storage')">Almacenamiento</button>
+            <button class="tab" onclick="showTab('files')">Archivos</button>
+            <button class="tab" onclick="showTab('settings')">Configuración</button>
+        </div>
+
+        <!-- Tab: Mis Servidores -->
+        <div id="servers" class="tab-content active">
+            <h2 style="margin-bottom: 1rem;">Mis Servidores</h2>
+            
+            <div class="server-card">
+                <div class="server-status status-online">ONLINE</div>
+                <h3>Servidor Principal</h3>
+                <p style="margin: 0.5rem 0; color: #718096;">Minecraft 1.20.4 • Paper • 8GB RAM</p>
+                
+                <div class="server-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">5/20</div>
+                        <div class="stat-label">Jugadores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2.1GB</div>
+                        <div class="stat-label">RAM Usada</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45%</div>
+                        <div class="stat-label">CPU</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-primary" onclick="serverAction('start')">▶️ Iniciar</button>
+                    <button class="btn btn-secondary" onclick="serverAction('restart')">🔄 Reiniciar</button>
+                    <button class="btn btn-danger" onclick="serverAction('stop')">⏹️ Detener</button>
+                    <button class="btn btn-secondary" onclick="openModal('backupModal')">💾 Respaldar</button>
+                    <button class="btn btn-secondary" onclick="openModal('configModal')">⚙️ Configurar</button>
+                </div>
+            </div>
+
+            <div class="server-card">
+                <div class="server-status status-offline">OFFLINE</div>
+                <h3>Servidor Survival</h3>
+                <p style="margin: 0.5rem 0; color: #718096;">Minecraft 1.19.4 • Vanilla • 4GB RAM</p>
+                
+                <div class="server-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">0/15</div>
+                        <div class="stat-label">Jugadores</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0GB</div>
+                        <div class="stat-label">RAM Usada</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">CPU</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Modo</div>
+                    </div>
+                </div>
+
+                <div class="server-actions">
+                    <button class="btn btn-primary" onclick="serverAction('start')">▶️ Iniciar</button>
+                    <button class="btn btn-secondary" onclick="openModal('configModal')">⚙️ Configurar</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Crear Servidor -->
+        <div id="create" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">Crear Nuevo Servidor</h2>
+            
+            <form onsubmit="createServer(event)">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Nombre del Servidor</label>
+                        <input type="text" class="form-control" placeholder="Mi Servidor Awesome" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Versión de Minecraft</label>
+                        <select class="form-control" required>
+                            <option value="">Seleccionar versión</option>
+                            <option value="1.20.4">1.20.4 (Recomendado)</option>
+                            <option value="1.20.2">1.20.2</option>
+                            <option value="1.19.4">1.19.4</option>
+                            <option value="1.18.2">1.18.2</option>
+                            <option value="1.16.5">1.16.5</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Tipo de Servidor</label>
+                        <select class="form-control" required>
+                            <option value="paper">Paper (Recomendado)</option>
+                            <option value="spigot">Spigot</option>
+                            <option value="vanilla">Vanilla</option>
+                            <option value="forge">Forge</option>
+                            <option value="fabric">Fabric</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>RAM Asignada</label>
+                        <select class="form-control" required>
+                            <option value="2048">2GB</option>
+                            <option value="4096">4GB</option>
+                            <option value="8192">8GB (Recomendado)</option>
+                            <option value="16384">16GB</option>
+                            <option value="32768">32GB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;">
+                        Servidor 24/7 (No se apaga automáticamente)
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;" checked>
+                        Habilitar respaldos automáticos en Google Drive
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                    🚀 Crear Servidor
+                </button>
+            </form>
+        </div>
+
+        <!-- Tab: Almacenamiento -->
+        <div id="storage" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">Almacenamiento en Google Drive</h2>
+            
+            <div style="background: #f0fff4; border: 2px solid #48bb78; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                <h3 style="color: #22543d; margin-bottom: 0.5rem;">📊 Resumen del Almacenamiento</h3>
+                <p style="color: #22543d;">Total disponible: <strong>150GB</strong> (3 cuentas conectadas)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 35%;"></div>
+                </div>
+                <p style="color: #22543d; font-size: 0.9rem; margin-top: 0.5rem;">Usado: 52.5GB / Disponible: 97.5GB</p>
+            </div>
+
+            <h3 style="margin-bottom: 1rem;">Cuentas de Google Drive Conectadas</h3>
+            
+            <div class="grid grid-2">
+                <div class="storage-card storage-connected">
+                    <h4>📧 cuenta1@gmail.com</h4>
+                    <p>15GB / 15GB disponible</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%;"></div>
+                    </div>
+                    <button class="btn btn-danger" style="margin-top: 0.5rem;" onclick="disconnectDrive(1)">Desconectar</button>
+                </div>
+
+                <div class="storage-card storage-connected">
+                    <h4>📧 cuenta2@gmail.com</h4>
+                    <p>12GB / 15GB disponible</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%;"></div>
+                    </div>
+                    <button class="btn btn-danger" style="margin-top: 0.5rem;" onclick="disconnectDrive(2)">Desconectar</button>
+                </div>
+
+                <div class="storage-card storage-connected">
+                    <h4>📧 cuenta3@gmail.com</h4>
+                    <p>25GB / 100GB disponible</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%;"></div>
+                    </div>
+                    <button class="btn btn-danger" style="margin-top: 0.5rem;" onclick="disconnectDrive(3)">Desconectar</button>
+                </div>
+
+                <div class="storage-card" onclick="connectDrive()">
+                    <h4>➕ Conectar Nueva Cuenta</h4>
+                    <p>Haz clic para agregar otra cuenta de Google Drive</p>
+                    <p style="font-size: 0.8rem; color: #718096;">Máximo 10 cuentas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Archivos -->
+        <div id="files" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">Administrador de Archivos</h2>
+            
+            <div class="form-group">
+                <label>Servidor Seleccionado</label>
+                <select class="form-control">
+                    <option>Servidor Principal</option>
+                    <option>Servidor Survival</option>
+                </select>
+            </div>
+
+            <div class="file-upload" onclick="uploadFile()">
+                <h3>📁 Subir Archivos</h3>
+                <p>Haz clic aquí para subir mundos, mods, plugins o configuraciones</p>
+                <p style="font-size: 0.8rem; color: #718096;">Formatos soportados: .zip, .jar, .dat, .mcworld</p>
+            </div>
+
+            <h3 style="margin: 1.5rem 0 1rem 0;">Archivos del Servidor</h3>
+            
+            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <span><strong>📁 world/</strong></span>
+                    <div>
+                        <button class="btn btn-secondary">📥 Descargar</button>
+                        <button class="btn btn-primary">💾 Respaldar</button>
+                    </div>
+                </div>
+                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <span><strong>⚡ plugins/</strong></span>
+                    <div>
+                        <button class="btn btn-secondary">📥 Descargar</button>
+                        <button class="btn btn-secondary">⚙️ Configurar</button>
+                    </div>
+                </div>
+                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📄 server.properties</span>
+                    <div>
+                        <button class="btn btn-secondary">✏️ Editar</button>
+                        <button class="btn btn-secondary">📥 Descargar</button>
+                    </div>
+                </div>
+                <div style="padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📄 server.jar</span>
+                    <div>
+                        <button class="btn btn-secondary">🔄 Actualizar</button>
+                        <button class="btn btn-secondary">📥 Descargar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Configuración -->
+        <div id="settings" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">Configuración General</h2>
+            
+            <div class="server-card">
+                <h3>🔧 Configuración de Servidor</h3>
+                <div class="grid grid-2" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label>Puerto del Servidor</label>
+                        <input type="number" class="form-control" value="25565">
+                    </div>
+                    <div class="form-group">
+                        <label>Dificultad</label>
+                        <select class="form-control">
+                            <option>Pacífico</option>
+                            <option>Fácil</option>
+                            <option selected>Normal</option>
+                            <option>Difícil</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;" checked>
+                        Modo supervivencia
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;" checked>
+                        Permitir PvP
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;">
+                        Modo hardcore
+                    </label>
+                </div>
+            </div>
+
+            <div class="server-card">
+                <h3>☁️ Configuración de Respaldos</h3>
+                <div class="grid grid-2" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label>Frecuencia de Respaldos</label>
+                        <select class="form-control">
+                            <option>Cada hora</option>
+                            <option selected>Cada 6 horas</option>
+                            <option>Diario</option>
+                            <option>Semanal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Respaldos a Conservar</label>
+                        <select class="form-control">
+                            <option>5 respaldos</option>
+                            <option selected>10 respaldos</option>
+                            <option>20 respaldos</option>
+                            <option>Ilimitado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" style="margin-right: 0.5rem;" checked>
+                        Respaldo automático antes de actualizaciones
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveSettings()">💾 Guardar Configuración</button>
+        </div>
+    </div>
+
+    <!-- Modal: Configuración -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('configModal')">&times;</span>
+            <h2>⚙️ Configuración del Servidor</h2>
+            
+            <div class="form-group">
+                <label>Nombre del Servidor</label>
+                <input type="text" class="form-control" value="Servidor Principal">
+            </div>
+            
+            <div class="form-group">
+                <label>Descripción (MOTD)</label>
+                <input type="text" class="form-control" value="¡Bienvenido a mi servidor!">
+            </div>
+            
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label>Jugadores Máximos</label>
+                    <input type="number" class="form-control" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Distancia de Renderizado</label>
+                    <input type="number" class="form-control" value="10">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" style="margin-right: 0.5rem;" checked>
+                    Servidor 24/7 (Siempre encendido)
+                </label>
+            </div>
+            
+            <button class="btn btn-primary" onclick="closeModal('configModal')">💾 Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Modal: Respaldo -->
+    <div id="backupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('backupModal')">&times;</span>
+            <h2>💾 Crear Respaldo</h2>
+            
+            <div class="form-group">
+                <label>Nombre del Respaldo</label>
+                <input type="text" class="form-control" placeholder="Respaldo - " id="backupName">
+            </div>
+            
+            <div class="form-group">
+                <label>¿Qué respaldar?</label>
+                <div>
+                    <label><input type="checkbox" checked> Mundo principal</label><br>
+                    <label><input type="checkbox" checked> Configuraciones</label><br>
+                    <label><input type="checkbox"> Plugins</label><br>
+                    <label><input type="checkbox"> Logs</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Destino</label>
+                <select class="form-control">
+                    <option>Google Drive (Cuenta 1)</option>
+                    <option>Google Drive (Cuenta 2)</option>
+                    <option>Google Drive (Cuenta 3)</option>
+                    <option>Almacenamiento local</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" onclick="createBackup()">🚀 Crear Respaldo</button>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Variables globales
+        let servers = [
+            {
+                id: 1,
+                name: 'Servidor Principal',
+                version: '1.20.4',
+                type: 'Paper',
+                ram: '8GB',
+                status: 'online',
+                players: '5/20',
+                uptime: '99.9%'
+            },
+            {
+                id: 2,
+                name: 'Servidor Survival',
+                version: '1.19.4',
+                type: 'Vanilla',
+                ram: '4GB',
+                status: 'offline',
+                players: '0/15',
+                uptime: '24/7'
+            }
+        ];
+
+        let driveAccounts = [
+            { id: 1, email: 'cuenta1@gmail.com', used: 12, total: 15 },
+            { id: 2, email: 'cuenta2@gmail.com', used: 3, total: 15 },
+            { id: 3, email: 'cuenta3@gmail.com', used: 25, total: 100 }
+        ];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar fecha en respaldo
+            document.getElementById('backupName').value = 'Respaldo - ' + new Date().toLocaleDateString();
+            
+            // Simular actualizaciones en tiempo real
+            setInterval(updateServerStats, 5000);
+        });
+
+        // Funciones de navegación
+        function showTab(tabName) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remover clase active de todos los tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Mostrar contenido seleccionado
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Funciones de servidor
+        function serverAction(action) {
+            const actions = {
+                'start': '🚀 Iniciando servidor...',
+                'restart': '🔄 Reiniciando servidor...',
+                'stop': '⏹️ Deteniendo servidor...'
+            };
+            
+            showNotification(actions[action], 'success');
+            
+            // Simular cambio de estado
+            setTimeout(() => {
+                showNotification(`Servidor ${action === 'stop' ? 'detenido' : 'iniciado'} correctamente`, 'success');
+            }, 3000);
+        }
+
+        function createServer(event) {
+            event.preventDefault();
+            showNotification('🚀 Creando servidor...', 'success');
+            
+            setTimeout(() => {
+                showNotification('✅ ¡Servidor creado exitosamente!', 'success');
+                showTab('servers');
+            }, 3000);
+        }
+
+        function updateServerStats() {
+            // Simular actualizaciones de estadísticas
+            const cpuUsage = Math.floor(Math.random() * 60) + 20;
+            const ramUsage = (Math.random() * 3 + 1).toFixed(1);
+            
+            // Actualizar estadísticas mostradas
+            console.log(`CPU: ${cpuUsage}%, RAM: ${ramUsage}GB`);
+        }
+
+        // Funciones de almacenamiento
+        function connectDrive() {
+            if (driveAccounts.length >= 10) {
+                showNotification('❌ Máximo 10 cuentas de Drive permitidas', 'error');
+                return;
+            }
+            
+            showNotification('🔐 Conectando con Google Drive...', 'success');
+            
+            // Simular proceso de autenticación
+            setTimeout(() => {
+                const newAccount = {
+                    id: driveAccounts.length + 1,
+                    email: `cuenta${driveAccounts.length + 1}@gmail.com`,
+                    used: Math.floor(Math.random() * 10),
+                    total: 15
+                };
+                driveAccounts.push(newAccount);
+                showNotification('✅ Cuenta de Drive conectada exitosamente', 'success');
+                location.reload(); // Recargar para mostrar nueva cuenta
+            }, 2000);
+        }
+
+        function disconnectDrive(accountId) {
+            if (confirm('¿Estás seguro de desconectar esta cuenta de Google Drive?')) {
+                driveAccounts = driveAccounts.filter(acc => acc.id !== accountId);
+                showNotification('🔌 Cuenta desconectada', 'success');
+                location.reload();
+            }
+        }
+
+        // Funciones de archivos
+        function uploadFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.zip,.jar,.dat,.mcworld';
+            input.multiple = true;
+            
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                showNotification(`📁 Subiendo ${files.length} archivo(s)...`, 'success');
+                
+                // Simular subida
+                setTimeout(() => {
+                    showNotification('✅ Archivos subidos correctamente', 'success');
+                }, 2000);
+            };
+            
+            input.click();
+        }
+
+        // Funciones de respaldo
+        function createBackup() {
+            const backupName = document.getElementById('backupName').value;
+            if (!backupName.trim()) {
+                showNotification('❌ Ingresa un nombre para el respaldo', 'error');
+                return;
+            }
+            
+            showNotification('💾 Creando respaldo...', 'success');
+            
+            setTimeout(() => {
+                showNotification('✅ Respaldo creado exitosamente', 'success');
+                closeModal('backupModal');
+            }, 3000);
+        }
+
+        // Funciones de configuración
+        function saveSettings() {
+            showNotification('💾 Guardando configuración...', 'success');
+            
+            setTimeout(() => {
+                showNotification('✅ Configuración guardada', 'success');
+            }, 1000);
+        }
+
+        function confirmDelete() {
+            if (confirm('⚠️ ¿Estás seguro de eliminar este servidor?\n\nEsta acción no se puede deshacer y se perderán todos los datos.')) {
+                showNotification('🗑️ Eliminando servidor...', 'success');
+                
+                setTimeout(() => {
+                    showNotification('✅ Servidor eliminado', 'success');
+                }, 2000);
+            }
+        }
+
+        // Funciones de modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Funciones de notificación
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Detectar si está en dispositivo móvil
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Optimizaciones para móvil
+        if (isMobile()) {
+            document.body.style.fontSize = '16px'; // Evitar zoom en iOS
+            
+            // Prevenir scroll horizontal
+            document.body.style.overflowX = 'hidden';
+            
+            // Mejorar rendimiento en móvil
+            document.addEventListener('touchstart', function() {}, { passive: true });
+        }
+
+        // Función para descargar como archivo
+        function downloadApp() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'GreenHost-App.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('📱 App descargada como GreenHost-App.html', 'success');
+        }
+
+        // Función para instalar como PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botón de instalación
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 Instalar App';
+            installBtn.className = 'btn btn-primary';
+            installBtn.style.position = 'fixed';
+            installBtn.style.bottom = '20px';
+            installBtn.style.right = '20px';
+            installBtn.style.zIndex = '1000';
+            
+            installBtn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showNotification('✅ App instalada correctamente', 'success');
+                    }
+                    deferredPrompt = null;
+                    installBtn.remove();
+                });
+            });
+            
+            document.body.appendChild(installBtn);
+        });
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'greenhost-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => response || fetch(event.request))
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('SW registrado'))
+                    .catch(() => console.log('SW falló'));
+            });
+        }
